@@ -145,7 +145,6 @@ class ExperimentBuilder(nn.Module):
         """
         all_grads = []
         layers = []
-        
         """
         Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the             layer names in layers.
         """
@@ -161,8 +160,7 @@ class ExperimentBuilder(nn.Module):
                 all_grads.append(mean_grad)  # 保存该层的平均梯度
                 layers.append(name)  # 保存该层的名称
         
-        plt = self.plot_func_def(all_grads, layers)
-        
+        plt = self.plot_func_def(all_grads, layers)        
         return plt
     
     
