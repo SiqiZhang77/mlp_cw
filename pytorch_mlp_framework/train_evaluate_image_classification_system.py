@@ -10,6 +10,8 @@ from pytorch_mlp_framework.model_architectures import *
 import os 
 # os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
+#import parallelTestModule
+
 args = get_args()  # get arguments from command line
 rng = np.random.RandomState(seed=args.seed)  # set the seeds for the experiment
 torch.manual_seed(seed=args.seed)  # sets pytorch's seed
@@ -37,9 +39,10 @@ test_data = data_providers.CIFAR100(root='data', set_name='test',
                  transform=transform_test,
                  download=True)  # initialize our rngs using the argument set seed
 
-train_data_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=2)
-val_data_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=True, num_workers=2)
-test_data_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=True, num_workers=2)
+#if __name__=='__main__' :
+train_data_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=0)
+val_data_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=True, num_workers=0)
+test_data_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=True, num_workers=0)
 
 if args.block_type == 'conv_block':
     processing_block_type = ConvolutionalProcessingBlock

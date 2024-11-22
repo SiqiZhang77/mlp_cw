@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -152,18 +153,15 @@ class ExperimentBuilder(nn.Module):
         #TODO write your code here
         
         ########################################
-
-        for name, value in named_parameters:
-            if 'weight' in name:
-                all_grads.append(value.grad.abs().mean().item())
-                if 'layer_dict' in name:
-                    layers.append(name[11:].replace('.layer_dict.', '_').replace('.weight',''))
-                else:
-                    layers.append('weight_' + name.replace('.weight',''))
+        # 遍历模型的参数
+        for name, param in named_parameters:
+            if param.requires_grad and param.grad is not None:  # 确保参数有梯度
+            # 计算梯度的绝对均值
+                mean_grad = param.grad.abs().mean().item()
+                all_grads.append(mean_grad)  # 保存该层的平均梯度
+                layers.append(name)  # 保存该层的名称
         
         plt = self.plot_func_def(all_grads, layers)
-        
-    
         
         return plt
     
