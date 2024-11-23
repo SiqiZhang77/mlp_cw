@@ -1,3 +1,4 @@
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -14,7 +15,7 @@ matplotlib.rcParams.update({'font.size': 8})
 
 class ExperimentBuilder(nn.Module):
     def __init__(self, network_model, experiment_name, num_epochs, train_data, val_data,
-                 test_data, learning_rate, weight_decay_coefficient, use_gpu, continue_from_epoch=-1):
+                 test_data, weight_decay_coefficient, use_gpu, continue_from_epoch=-1):
         """
         Initializes an ExperimentBuilder object. Such an object takes care of running training and evaluation of a deep net
         on a given dataset. It also takes care of saving per epoch models and automatically inferring the best val model
@@ -35,13 +36,8 @@ class ExperimentBuilder(nn.Module):
         self.experiment_name = experiment_name
         self.model = network_model
 
-        if torch.cuda.device_count() > 1 and use_gpu:
-            self.device = torch.cuda.current_device()
-            self.model.to(self.device)
-            self.model = nn.DataParallel(module=self.model)
-            print('Use Multi GPU', self.device)
-        elif torch.cuda.device_count() == 1 and use_gpu:
-            self.device =  torch.cuda.current_device()
+        if torch.cuda.device_count() >= 1 and use_gpu:
+            self.device =  torch.device('cuda')
             self.model.to(self.device)  # sends the model from the cpu to the gpu
             print('Use GPU', self.device)
         else:
@@ -72,7 +68,7 @@ class ExperimentBuilder(nn.Module):
         print('Total number of conv layers', num_conv_layers)
         print('Total number of linear layers', num_linear_layers)
 
-        self.optimizer = optim.Adam(self.parameters(), amsgrad=False, lr=learning_rate,
+        self.optimizer = optim.Adam(self.parameters(), amsgrad=False,
                                     weight_decay=weight_decay_coefficient)
         self.learning_rate_scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
                                                                             T_max=num_epochs,
@@ -140,36 +136,44 @@ class ExperimentBuilder(nn.Module):
         
         return plt
         
-    
     def plot_grad_flow(self, named_parameters):
-        """
-        The function is being called in Line 298 of this file. 
-        Receives the parameters of the model being trained. Returns plot of gradient flow for the given model parameters.
-       
-        """
         all_grads = []
         layers = []
-        
-        """
-        Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the layer names in layers.
-        """
-        ########################################
-        for name,params in named_parameters:
-            if (params.requires_grad) and ('batch_norm' not in name) and ('bias' not in name):
+        for name, params in named_parameters:
+            if params.requires_grad and params.grad is not None and ('batch_norm' not in name) and ('bias' not in name):
                 all_grads.append(params.grad.abs().mean())
-                layer_name = name.replace('layer_dict.','_')
-                layer_name = layer_name.replace('.','')
+                layer_name = name.replace('layer_dict.', '_')
+                layer_name = layer_name.replace('.', '')
                 if layer_name.startswith('_'):
                     layer_name = layer_name[1:]
-                layers.append(layer_name.replace('weight',''))
+                layers.append(layer_name.replace('weight', ''))
         
-        ########################################
-            
-        
-        plt = self.plot_func_def(all_grads, layers)
-        
+        plt = self.plot_func_def(all_grads, layers)        
         return plt
-    
+
+    # def plot_grad_flow(self, named_parameters):
+    #     """
+    #     The function is being called in Line 298 of this file. 
+    #     Receives the parameters of the model being trained. Returns plot of gradient flow for the given model parameters.
+       
+    #     """
+    #     all_grads = []
+    #     layers = []
+    #     """
+    #     Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the             layer names in layers.
+    #     """
+    #     for name,params in named_parameters:
+    #         if (params.requires_grad) and ('batch_norm' not in name) and ('bias' not in name):
+    #             all_grads.append(params.grad.abs().mean())
+    #             layer_name = name.replace('layer_dict.','_')
+    #             layer_name = layer_name.replace('.','')
+    #             if layer_name.startswith('_'):
+    #                 layer_name = layer_name[1:]
+    #             layers.append(layer_name.replace('weight',''))
+        
+    #     plt = self.plot_func_def(all_grads, layers)        
+    #     return plt
+        
     
     
     
@@ -186,8 +190,9 @@ class ExperimentBuilder(nn.Module):
         self.optimizer.zero_grad()  # set all weight grads from previous training iters to 0
         loss.backward()  # backpropagate to compute gradients for current iter loss
         
-        self.learning_rate_scheduler.step(epoch=self.current_epoch)
         self.optimizer.step()  # update network parameters
+        self.learning_rate_scheduler.step()  # update learning rate scheduler
+        
         _, predicted = torch.max(out.data, 1)  # get argmax of predictions
         accuracy = np.mean(list(predicted.eq(y.data).cpu()))  # compute accuracy
         return loss.cpu().data.numpy(), accuracy
