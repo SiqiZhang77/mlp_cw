@@ -149,16 +149,17 @@ class ExperimentBuilder(nn.Module):
         Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the             layer names in layers.
         """
         ########################################
-        #TODO write your code here
-        
-        ########################################
-        # 遍历模型的参数
         for name, param in named_parameters:
-            if param.requires_grad and param.grad is not None:  # 确保参数有梯度
-            # 计算梯度的绝对均值
-                mean_grad = param.grad.abs().mean().item()
-                all_grads.append(mean_grad)  # 保存该层的平均梯度
-                layers.append(name)  # 保存该层的名称
+            if 'logit_linear_layer' in name and 'bias' not in name:
+                name_split = name.split('.')
+                layer = name_split[1]+'_'+name_split[0]
+                layers.append(layer)
+                all_grads.append(param.grad.abs().mean())
+            elif 'weight' in name:
+                name_split = name.split('.')
+                layer = name_split[1]+'_'+name_split[3]
+                layers.append(layer)
+                all_grads.append(param.grad.abs().mean())
         
         plt = self.plot_func_def(all_grads, layers)        
         return plt
