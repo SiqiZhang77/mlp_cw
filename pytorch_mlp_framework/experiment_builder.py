@@ -137,20 +137,7 @@ class ExperimentBuilder(nn.Module):
         return plt
         
 
-    def plot_grad_flow(self, named_parameters):
-    all_grads = []
-    layers = []
-    for name, params in named_parameters:
-        if params.requires_grad and params.grad is not None and ('batch_norm' not in name) and ('bias' not in name):
-            all_grads.append(params.grad.abs().mean())
-            layer_name = name.replace('layer_dict.', '_')
-            layer_name = layer_name.replace('.', '')
-            if layer_name.startswith('_'):
-                layer_name = layer_name[1:]
-            layers.append(layer_name.replace('weight', ''))
-    
-    plt = self.plot_func_def(all_grads, layers)        
-    return plt
+
 
     def plot_grad_flow(self, named_parameters):
         """
