@@ -141,7 +141,7 @@ class ExperimentBuilder(nn.Module):
         layers = []
         for name, params in named_parameters:
             if params.requires_grad and params.grad is not None and ('batch_norm' not in name) and ('bias' not in name):
-                all_grads.append(params.grad.cpu().abs().mean())
+                all_grads.append(params.grad.abs().mean())
                 layer_name = name.replace('layer_dict.', '_')
                 layer_name = layer_name.replace('.', '')
                 if layer_name.startswith('_'):
