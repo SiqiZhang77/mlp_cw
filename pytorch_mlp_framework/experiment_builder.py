@@ -136,15 +136,10 @@ class ExperimentBuilder(nn.Module):
         
         return plt
         
-    
     def plot_grad_flow(self, named_parameters):
-        """
-        The function is being called in Line 298 of this file. 
-        Receives the parameters of the model being trained. Returns plot of gradient flow for the given model parameters.
-       
-        """
         all_grads = []
         layers = []
+<<<<<<< HEAD
         """
         Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the             layer names in layers.
         """
@@ -156,10 +151,43 @@ class ExperimentBuilder(nn.Module):
                 if layer_name.startswith('_'):
                     layer_name = layer_name[1:]
                 layers.append(layer_name.replace('weight',''))
+=======
+        for name, params in named_parameters:
+            if params.requires_grad and params.grad is not None and ('batch_norm' not in name) and ('bias' not in name):
+                all_grads.append(params.grad.cpu().abs().mean())
+                layer_name = name.replace('layer_dict.', '_')
+                layer_name = layer_name.replace('.', '')
+                if layer_name.startswith('_'):
+                    layer_name = layer_name[1:]
+                layers.append(layer_name.replace('weight', ''))
+>>>>>>> 7e1f0c8ff86719a98f5a6b612b2204dc6cd321c5
         
         plt = self.plot_func_def(all_grads, layers)        
         return plt
-    
+
+    # def plot_grad_flow(self, named_parameters):
+    #     """
+    #     The function is being called in Line 298 of this file. 
+    #     Receives the parameters of the model being trained. Returns plot of gradient flow for the given model parameters.
+       
+    #     """
+    #     all_grads = []
+    #     layers = []
+    #     """
+    #     Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the             layer names in layers.
+    #     """
+    #     for name,params in named_parameters:
+    #         if (params.requires_grad) and ('batch_norm' not in name) and ('bias' not in name):
+    #             all_grads.append(params.grad.abs().mean())
+    #             layer_name = name.replace('layer_dict.','_')
+    #             layer_name = layer_name.replace('.','')
+    #             if layer_name.startswith('_'):
+    #                 layer_name = layer_name[1:]
+    #             layers.append(layer_name.replace('weight',''))
+        
+    #     plt = self.plot_func_def(all_grads, layers)        
+    #     return plt
+        
     
     
     
