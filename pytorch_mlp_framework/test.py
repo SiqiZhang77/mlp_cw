@@ -46,7 +46,7 @@ class TestBlocks(unittest.TestCase):
         output = block.forward(x)  
         self.assertEqual(output.shape[2], self.input_shape[2] // self.reduction_factor)  # test height
         self.assertEqual(output.shape[3], self.input_shape[3] // self.reduction_factor)  
-
+        
     def test_convolutional_processing_block_bn_rescon(self):
         # Test ConvolutionalProcessingBlock_BN_ResCon
         block = ConvolutionalProcessingBlock_BN_ResCon(
@@ -58,8 +58,15 @@ class TestBlocks(unittest.TestCase):
             dilation=self.dilation,
         )
         x = torch.randn(self.input_shape)  # Generate random tensor
-        output = block.forward(x)  
-        self.assertEqual(output.shape, x.shape)  # Test shape consistency
+        output = block.forward(x)  # Forward pass
+        
+        # Check if the output shape is correct
+        self.assertEqual(
+            output.shape, 
+            (self.input_shape[0], self.num_filters, self.input_shape[2], self.input_shape[3]),
+            "Output shape does not match expected shape after residual connection"
+        )
+
 
 
 if __name__ == '__main__':
