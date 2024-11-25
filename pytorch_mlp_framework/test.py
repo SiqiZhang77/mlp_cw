@@ -48,7 +48,7 @@ class TestBlocks(unittest.TestCase):
         self.assertEqual(output.shape[3], self.input_shape[3] // self.reduction_factor)  
 
     def test_convolutional_processing_block_bn_rescon(self):
-        # 测试 ConvolutionalProcessingBlock_BN_ResCon
+        # test ConvolutionalProcessingBlock_BN_ResCon
         block = ConvolutionalProcessingBlock_BN_ResCon(
             input_shape=self.input_shape,
             num_filters=self.num_filters,
