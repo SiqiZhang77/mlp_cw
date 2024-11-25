@@ -14,7 +14,7 @@ import matplotlib
 matplotlib.rcParams.update({'font.size': 8})
 
 class ExperimentBuilder(nn.Module):
-    def __init__(self, network_model, experiment_name, num_epochs, train_data, val_data,
+    def __init__(self, learning_rate, network_model, experiment_name, num_epochs, train_data, val_data,
                  test_data, weight_decay_coefficient, use_gpu, continue_from_epoch=-1):
         """
         Initializes an ExperimentBuilder object. Such an object takes care of running training and evaluation of a deep net
@@ -69,7 +69,7 @@ class ExperimentBuilder(nn.Module):
         print('Total number of linear layers', num_linear_layers)
 
         self.optimizer = optim.Adam(self.parameters(), amsgrad=False,
-                                    weight_decay=weight_decay_coefficient)
+                                    weight_decay=weight_decay_coefficient, lr= learning_rate)
         self.learning_rate_scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer,
                                                                             T_max=num_epochs,
                                                                             eta_min=0.00002)
@@ -139,19 +139,12 @@ class ExperimentBuilder(nn.Module):
     def plot_grad_flow(self, named_parameters):
         all_grads = []
         layers = []
-<<<<<<< HEAD
+
         """
-        Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the             layer names in layers.
+        Complete the code in the block below to collect absolute mean of the gradients for each layer in all_grads with the layer names in layers.
         """
-        for name,params in named_parameters:
-            if (params.requires_grad) and ('batch_norm' not in name) and ('bias' not in name):
-                all_grads.append(params.grad.abs().mean())
-                layer_name = name.replace('layer_dict.','_')
-                layer_name = layer_name.replace('.','')
-                if layer_name.startswith('_'):
-                    layer_name = layer_name[1:]
-                layers.append(layer_name.replace('weight',''))
-=======
+      
+
         for name, params in named_parameters:
             if params.requires_grad and params.grad is not None and ('batch_norm' not in name) and ('bias' not in name):
                 all_grads.append(params.grad.cpu().abs().mean())
@@ -160,8 +153,7 @@ class ExperimentBuilder(nn.Module):
                 if layer_name.startswith('_'):
                     layer_name = layer_name[1:]
                 layers.append(layer_name.replace('weight', ''))
->>>>>>> 7e1f0c8ff86719a98f5a6b612b2204dc6cd321c5
-        
+
         plt = self.plot_func_def(all_grads, layers)        
         return plt
 
