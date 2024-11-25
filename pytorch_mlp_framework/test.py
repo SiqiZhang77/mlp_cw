@@ -48,7 +48,7 @@ class TestBlocks(unittest.TestCase):
         self.assertEqual(output.shape[3], self.input_shape[3] // self.reduction_factor)  
 
     def test_convolutional_processing_block_bn_rescon(self):
-        # test ConvolutionalProcessingBlock_BN_ResCon
+        # Test ConvolutionalProcessingBlock_BN_ResCon
         block = ConvolutionalProcessingBlock_BN_ResCon(
             input_shape=self.input_shape,
             num_filters=self.num_filters,
@@ -57,9 +57,10 @@ class TestBlocks(unittest.TestCase):
             bias=self.bias,
             dilation=self.dilation,
         )
-        x = torch.randn(self.input_shape)  
+        x = torch.randn(self.input_shape)  # Generate random tensor
         output = block.forward(x)  
-        self.assertEqual(output.shape, x.shape)  #test shape
+        self.assertEqual(output.shape, x.shape)  # Test shape consistency
+
 
 if __name__ == '__main__':
     unittest.main()
